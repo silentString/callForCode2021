@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.boc.water.dao.mapper.ItemMapper">
+    <resultMap id="item" type="com.boc.water.dao.entity.Item">
+        <result property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="total_amount" column="total_amount"/>
+        <result property="loan_ava_amount" column="loan_ava_amount"/>
+        <result property="donate_ava_amount" column="donate_ava_amount"/>
+        <result property="loan_account" column="loan_account_no"/>
+        <result property="donate_account" column="donate_account_no"/>
+        <result property="status" column="status"/>
+    </resultMap>
+
+    <select id="getItem" parameterType="java.lang.Integer" resultMap="item">
+        select * from item_detail where id = #{id}
+    </select>
+
+    <update id="updateAva">
+        update item_detail
+        <set>
+            <if test="type==0">
+                donate_ava_amount = donate_ava_amount + #{diff}
+            </if>
+            <if test="type==1">
+                loan_ava_amount = loan_ava_amount + #{diff}
+            </if>
+        </set>
+        where id = 1
+    </update>
+</mapper>

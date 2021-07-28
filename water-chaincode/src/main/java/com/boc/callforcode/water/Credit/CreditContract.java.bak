@@ -1,0 +1,49 @@
+package com.boc.callforcode.water.Credit;
+
+import com.boc.callforcode.ledgerapi.State;
+import com.boc.callforcode.water.application.WaterFundApplicationBase;
+import com.boc.callforcode.water.project.WaterProjectBase;
+import com.boc.callforcode.water.project.WaterProjectContext;
+import com.boc.callforcode.water.verify.AutomaticTransferContract;
+import org.hyperledger.fabric.contract.ContractInterface;
+import org.hyperledger.fabric.contract.annotation.*;
+
+import java.util.logging.Logger;
+
+
+@Contract(name = "com.boc.water.AutoMaticAlterContract", info = @Info(title = "record trust thing   contract", description = "", version = "0.0.1", license = @License(name = "SPDX-License-Identifier: Apache-2.0", url = ""), contact = @Contact(name = "java-contract", url = "http://java-contract.lrn")))
+public class AutoMaticAlterContract implements ContractInterface {
+    // use the classname for the logger, this way you can refactor
+    private final static Logger LOG = Logger.getLogger(AutomaticTransferContract.class.getName());
+
+
+    // 银行相应人员获取材料，线下人工检查材料，根据检查结果，调用SetVerifyValue设置检查结果 有效/无效
+    @Transaction(intent = Transaction.TYPE.EVALUATE)
+    public String getTrustedRecord(WaterProjectContext proCtx, String projectNumber,
+                                   String applicationNumber){
+        //获取对应项目上下文，获取申请认定诚信状况
+        System.out.println(proCtx);
+        String projectKey = State.makeKey(new String[]{projectNumber});
+        WaterProjectBase project = proCtx.projectList.getWaterProjectBase(projectKey);
+        //从项目中获取对应的申请材料的路径和hash值
+        String trusetRecord = project.getEnterprise(applicationNumber).getApplicationUnit().getTrustedRecord();
+        return trusetRecord;
+    }
+
+    @Transaction
+    public WaterFundApplicationBase setTrustedRecord(WaterProjectContext proCtx, String projectNumber,
+                                                     String applicationNumber,
+                                                     String trusetRecord) {
+
+
+        //获取对应项目上下文，将对应申请材料确认状态进行设置，
+        System.out.println(proCtx);
+        String projectKey = State.makeKey(new String[]{projectNumber});
+        WaterProjectBase project = proCtx.projectList.getWaterProjectBase(projectKey);
+        //从项目中获取对应的申请人诚信
+        project.getEnterprise(applicationNumber).getApplicationUnit().setTrustedRecord(trusetRecord);
+        proCtx.projectList.updateWaterProjectBase(project);
+        return project.getEnterprise(applicationNumber);
+    }
+
+}

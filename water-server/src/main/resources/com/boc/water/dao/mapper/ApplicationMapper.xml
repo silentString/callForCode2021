@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.boc.water.dao.mapper.ApplicationMapper">
+    <resultMap id="appDto" type="com.boc.water.dao.dto.ApplicationDto">
+        <result property="item_id" column="item_id"/>
+        <result property="application_id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="date" column="submit_time"/>
+        <result property="amount" column="amount"/>
+        <result property="status" column="status"/>
+    </resultMap>
+
+    <resultMap id="appAccMsg" type="com.boc.water.dao.entity.Application">
+        <result property="id" column="id"/>
+        <result property="amount" column="amount"/>
+        <result property="apply_account_type" column="apply_account_type"/>
+    </resultMap>
+
+    <select id="getApps" parameterType="java.lang.Integer" resultMap="appDto">
+        select item_id,id,title,submit_time,amount,status from application where item_id = #{item_id}
+    </select>
+
+    <insert id="addApplication" parameterType="com.boc.water.dao.entity.Application"
+            useGeneratedKeys="true" keyProperty="app.id" keyColumn="id">
+        insert into application(item_id, title, detail, submit_time, amount, apply_account_type,
+        apply_account_no, receipt_account_no, payee) values (1, #{title}, #{detail}, now(), #{amount},
+        #{apply_account_type}, #{apply_account_no}, #{receipt_account_no}, #{payee})
+    </insert>
+
+    <select id="getApp" parameterType="java.lang.Integer" resultMap="appAccMsg">
+        select id,amount,apply_account_type from application where id = #{application_id}
+    </select>
+
+    <update id="recall" parameterType="java.lang.Integer">
+        update application set status = 1 where id = #{application_id} and status = 0
+    </update>
+
+    <update id="approve">
+        update application set status = #{ret} where id = #{application_id} and status = 0
+    </update>
+
+    <select id="getSubmitApps" resultMap="appAccMsg">
+        select id,amount,apply_account_type from application where status = 0
+    </select>
+
+    <select id="getAppDetail" parameterType="java.lang.Integer"
+            resultType="com.boc.water.dao.entity.Application">
+        select * from application where id = #{app_id}
+    </select>
+</mapper>
